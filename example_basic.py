@@ -10,7 +10,7 @@ import numpy as np
 a = 3 
 b = 4
 
-# Annotation here
-# Annotation here
+"Annotation here 1"
+"Annotation here 2"
 output = np.dot(a,b)
 print(output)

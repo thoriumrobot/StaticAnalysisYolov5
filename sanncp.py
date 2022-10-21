@@ -14,7 +14,18 @@ with open('example_basic.py', 'r', encoding='utf8') as f:
 #print (type(token_src))
 
 ## test ast 
+class GetAssignments(ast.NodeVisitor):
+    def visit_Name(self, node):
+        if isinstance(node.ctx, ast.Store):
+            print (node.id, node.lineno)
+
 tree = ast.parse(src, mode='exec')
+
+print ("\n ---- AST TREE STARTED -----\n")
+GetAssignments().visit(tree)
+#print (type (tree) , tree, tree.lineno)
+
+print ("\n ---- AST TREE END-----\n")
 
 #print (ast.dump(tree))
 '''
@@ -41,6 +52,8 @@ print (type(fun_cfg))
 basic_cfg = None
 for block in cfg:
     calls = block.get_calls()
+    block_src = block.get_source()
     print (type(block), type(calls))
     print (calls)
-    print (block.get_source)
+    print (block_src)
+    print (type(block_src))
