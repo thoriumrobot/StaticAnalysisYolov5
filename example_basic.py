@@ -10,7 +10,6 @@ import numpy as np
 a = 3 
 b = 4
 
-"Annotation here 1"
-"Annotation here 2"
+"nncp dot "
 output = np.dot(a,b)
 print(output)
