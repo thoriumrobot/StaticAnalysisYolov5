@@ -1,6 +1,5 @@
 import ast
 import tokenize
-from scalpel.scalpel.cfg import CFGBuilder
 
 # dictionary to save all linear ops by annotated str
 linear_ops = {}
@@ -17,13 +16,11 @@ with open('example_basic.py', 'r', encoding='utf8') as f:
 
 ## test ast 
 class GetAssignments(ast.NodeVisitor):
-    def visit_Name(self, node):
-        if isinstance(node.ctx, ast.Store):
-            if (node.lineno-1) in linear_ops.keys():
-                print (linear_ops[node.lineno-1])
-                #linear_ops[node.lineno-1] in node
-                # TODO: get the ops from code and comp it with op in annotation
-                #print(node.attr)
+    def visit_Assign(self, node):
+        if (node.lineno-1) in linear_ops.keys():
+            if linear_ops[node.lineno-1]==node.value.func.attr:
+                print('match: '+node.value.func.attr+'\n')
+            
 
 
 
@@ -66,18 +63,3 @@ Module(
     )
 '''
 
-## test scalpel
-cfg = CFGBuilder().build_from_src(name='basic', src=src, flattened=False)
-fun_cfg = cfg.functioncfgs.items()
-
-print(type(cfg))
-print (type(fun_cfg))
-
-basic_cfg = None
-for block in cfg:
-    calls = block.get_calls()
-    block_src = block.get_source()
-    print (type(block), type(calls))
-    print (calls)
-    print (block_src)
-    print (type(block_src))
