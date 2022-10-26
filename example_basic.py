@@ -17,7 +17,8 @@ c = 7
 
 output1=np.dot(b,c)
 
-"nncp dot "
+"nncp array "
+
 val1=np.array([[1, 2], [3, 4]])
 
 print(output)

@@ -3,13 +3,20 @@ import tokenize
 
 # dictionary to save all linear ops by annotated str
 linear_ops = {}
+blank_lines = []
 
 # read file && test tokenize
 with open('example_basic.py', 'r', encoding='utf8') as f: 
     src = f.read()
-    #token_src = tokenize.generate_tokens(f.readline)
-    #for token in token_src:
-        #print(token)
+    
+with tokenize.open('example_basic.py') as f:
+    token_src = tokenize.generate_tokens(f.readline)
+    for token in token_src:
+        #print(token.string," ",token.start[0])
+        if token.type==61:
+            blank_lines.append(token.start[0])
+
+print(blank_lines)
 
 #print (type(src), src)
 #print (type(token_src))
@@ -19,8 +26,14 @@ class GetAssignments(ast.NodeVisitor):
     def visit_Assign(self, node):
         if isinstance(node.value, ast.Constant):
             return
-        if (node.lineno-1) in linear_ops.keys():
-            if linear_ops[node.lineno-1]==node.value.func.attr:
+        c=1
+        while (node.lineno-c) in blank_lines:
+            c+=1
+            if c>=6:
+                print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
+                return
+        if (node.lineno-c) in linear_ops.keys():
+            if linear_ops[node.lineno-c]==node.value.func.attr:
                 print('match: ',node.value.func.attr," on line ",node.lineno," ",ast.dump(node.value),'\n')
             else:
                 print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
