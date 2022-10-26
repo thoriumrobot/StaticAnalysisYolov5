@@ -12,4 +12,12 @@ b = 4
 
 "nncp dot "
 output = np.dot(a,b)
+
+c = 7
+
+output1=np.dot(b,c)
+
+"nncp dot "
+val1=np.array([[1, 2], [3, 4]])
+
 print(output)

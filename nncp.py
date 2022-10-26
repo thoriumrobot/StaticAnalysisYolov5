@@ -7,9 +7,9 @@ linear_ops = {}
 # read file && test tokenize
 with open('example_basic.py', 'r', encoding='utf8') as f: 
     src = f.read()
-    token_src = tokenize.generate_tokens(f.readline)
-    for token in token_src:
-        print(token)
+    #token_src = tokenize.generate_tokens(f.readline)
+    #for token in token_src:
+        #print(token)
 
 #print (type(src), src)
 #print (type(token_src))
@@ -17,9 +17,15 @@ with open('example_basic.py', 'r', encoding='utf8') as f:
 ## test ast 
 class GetAssignments(ast.NodeVisitor):
     def visit_Assign(self, node):
+        if isinstance(node.value, ast.Constant):
+            return
         if (node.lineno-1) in linear_ops.keys():
             if linear_ops[node.lineno-1]==node.value.func.attr:
-                print('match: '+node.value.func.attr+'\n')
+                print('match: ',node.value.func.attr," on line ",node.lineno," ",ast.dump(node.value),'\n')
+            else:
+                print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
+        else:
+            print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
             
 
 
@@ -39,14 +45,14 @@ class ConstantVisitor(ast.NodeVisitor):
 
 tree = ast.parse(src, mode='exec')
 
-print ("\n ---- AST TREE STARTED -----\n")
+#print ("\n ---- AST TREE STARTED -----\n")
 ConstantVisitor().visit(tree)
 #print (type (tree) , tree, tree.lineno)
 print (linear_ops)
 
 GetAssignments().visit(tree)
 
-print ("\n ---- AST TREE END-----\n")
+#print ("\n ---- AST TREE END-----\n")
 
 #print (ast.dump(tree))
 '''
