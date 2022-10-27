@@ -12,12 +12,20 @@ blank_lines = []
 with open('example_basic.py', 'r', encoding='utf8') as f: 
     src = f.read()
     
+flag=True
+
 with tokenize.open('example_basic.py') as f:
     token_src = tokenize.generate_tokens(f.readline)
     for token in token_src:
-        #print(token.string," ",token.start[0])
-        if token.type==61:
+        #print(token)
+        if token.type==60 and 'nncp' in token.string:
+            #print(token.string.split('nncp'))
+            linear_ops[token.start[0]] = token.string.split('nncp')[1].replace(' ', '')
+            flag=False
+            continue
+        if token.type==61 and flag:
             blank_lines.append(token.start[0])
+        flag=True
 
 print(blank_lines)
 
@@ -41,7 +49,7 @@ class GetAssignments(ast.NodeVisitor):
         while (node.lineno-c) in blank_lines:
             c+=1
             if c>=6:
-                print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
+                print("match not found: ",ast.dump(node.value)," on line ",node.lineno," more than 5 blank lines")
                 return
         if (node.lineno-c) in linear_ops.keys():
             if hasattr(node.value.func.value, "attr"):
@@ -64,13 +72,14 @@ class GetAssignments(ast.NodeVisitor):
                     return
                 print('match: ',node.value.func.attr," on line ",node.lineno," ",ast.dump(node.value),'\n')
         else:
-            print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
+            print("match not found: ",ast.dump(node.value)," on line ",node.lineno," annotation not found")
             
 
 
 
 # get the annotaiton from string. 
 # only print str that has 'nncp'
+'''
 class ConstantVisitor(ast.NodeVisitor):
     def visit_Constant(self,node):
         #print('Node type: Constant\nFields: ', node._fields, node.value, node.kind)
@@ -79,13 +88,13 @@ class ConstantVisitor(ast.NodeVisitor):
             linear_ops[node.lineno] = node.value.split('nncp')[1].replace(' ', '')
             
         ast.NodeVisitor.generic_visit(self, node)
-
+'''
 
 
 tree = ast.parse(src, mode='exec')
 
 #print ("\n ---- AST TREE STARTED -----\n")
-ConstantVisitor().visit(tree)
+#ConstantVisitor().visit(tree)
 #print (type (tree) , tree, tree.lineno)
 print (linear_ops)
 

@@ -11,18 +11,18 @@ import torch
 a = 3 
 b = 4
 
-"nncp np dot "
+#nncp np dot
 output = np.dot(a,b)
 
 c = 7
 
 output1=np.dot(b,c)
 
-"nncp array "
+#nncp array
 
 val1=np.array([[1, 2], [3, 4]])
 
-"nncp torch nn interpolate "
+#nncp torch nn interpolate
 val2=torch.nn.interpolate()
 
 print(output)
