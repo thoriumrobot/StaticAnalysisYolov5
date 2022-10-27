@@ -1,6 +1,9 @@
-import ast
-import tokenize
+import ast, tokenize, csv
 
+# get hard list linear operations from file
+hardList_linearOps = list(csv.reader(open('linear_op_list.csv','r'), delimiter=','))[0]
+
+print (hardList_linearOps)
 # dictionary to save all linear ops by annotated str
 linear_ops = {}
 blank_lines = []
@@ -26,6 +29,14 @@ class GetAssignments(ast.NodeVisitor):
     def visit_Assign(self, node):
         if isinstance(node.value, ast.Constant):
             return
+        if hasattr(node.value.func.value, "attr"):
+            print(node.value.func.value.value.id," ",node.value.func.value.attr," ",node.value.func.attr)
+            if node.value.func.value.value.id not in hardList_linearOps or node.value.func.value.attr not in hardList_linearOps or node.value.func.attr not in hardList_linearOps:
+                return
+        else:
+            print(node.value.func.value.id," ",node.value.func.attr)
+            if node.value.func.value.id not in hardList_linearOps or node.value.func.attr not in hardList_linearOps:
+                return
         c=1
         while (node.lineno-c) in blank_lines:
             c+=1
@@ -33,10 +44,25 @@ class GetAssignments(ast.NodeVisitor):
                 print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
                 return
         if (node.lineno-c) in linear_ops.keys():
-            if linear_ops[node.lineno-c]==node.value.func.attr:
+            if hasattr(node.value.func.value, "attr"):
+                if node.value.func.value.value.id not in linear_ops[node.lineno-c]:
+                    print("match not found: ",ast.dump(node.value)," on line ",node.lineno," couldn't find ",node.value.func.value.value.id," in annotation",linear_ops[node.lineno-c])
+                    return
+                if node.value.func.value.attr not in linear_ops[node.lineno-c]:
+                    print("match not found: ",ast.dump(node.value)," on line ",node.lineno," couldn't find ",node.value.func.value.attr," in annotation",linear_ops[node.lineno-c])
+                    return
+                if node.value.func.attr not in linear_ops[node.lineno-c]:
+                    print("match not found: ",ast.dump(node.value)," on line ",node.lineno," couldn't find ",node.value.func.attr," in annotation",linear_ops[node.lineno-c])
+                    return
                 print('match: ',node.value.func.attr," on line ",node.lineno," ",ast.dump(node.value),'\n')
             else:
-                print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
+                if node.value.func.value.id not in linear_ops[node.lineno-c]:
+                    print("match not found: ",ast.dump(node.value)," on line ",node.lineno," couldn't find ",node.value.func.value.id," in annotation",linear_ops[node.lineno-c])
+                    return
+                if node.value.func.attr not in linear_ops[node.lineno-c]:
+                    print("match not found: ",ast.dump(node.value)," on line ",node.lineno," couldn't find ",node.value.func.attr," in annotation",linear_ops[node.lineno-c])
+                    return
+                print('match: ',node.value.func.attr," on line ",node.lineno," ",ast.dump(node.value),'\n')
         else:
             print("match not found: ",ast.dump(node.value)," on line ",node.lineno)
             
